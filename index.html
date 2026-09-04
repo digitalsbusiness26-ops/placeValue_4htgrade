@@ -47,7 +47,13 @@
       color: #ec30bd;
       font-size: 1.2rem;
     }
-    
+
+    .header p {
+      margin: 0;
+      color: #eea333;
+      font-size: 1.2rem;
+    }
+
     .score-board {
       font-size: 1.2rem;
       font-weight: bold;
@@ -358,7 +364,7 @@
   <div class="game-container">
     <div class="header">
       <h1>🕵️ Place Value Vault Detective</h1>
-      <p>|</p>
+      <p>||</p>
       <h2>Ms. Jean's Class</h2>
       <div class="score-board">Cash Earned: $<span id="score">0</span></div>
     </div>
@@ -385,6 +391,21 @@
 
       <div class="block-ref-list">
         <div class="block-ref-item">
+          <strong>Millions (Big Cube)</strong><br>
+          Value = 1,000,000<br>
+          <em>Example: 2 big cubes = 2,000,000</em>
+        </div>
+        <div class="block-ref-item">
+          <strong>Hundred Thousands (Large Flat)</strong><br>
+          Value = 100,000<br>
+          <em>Example: 4 large flats = 400,000</em>
+        </div>
+        <div class="block-ref-item">
+          <strong>Ten Thousands (Long Strip)</strong><br>
+          Value = 10,000<br>
+          <em>Example: 6 long strips = 60,000</em>
+        </div>
+        <div class="block-ref-item">
           <strong>Thousands (Cube)</strong><br>
           Value = 1,000<br>
           <em>Example: 3 cubes = 3,000</em>
@@ -402,7 +423,7 @@
         <div class="block-ref-item">
           <strong>Ones (Unit)</strong><br>
           Value = 1<br>
-          <em>Example: 4 units = 4</em>
+          <em>Example: 4 ones = 4</em>
         </div>
       </div>
 
@@ -697,7 +718,6 @@
       document.getElementById('pv-grid').style.display = (mode === 1) ? 'grid' : 'none';
       document.getElementById('word-input-area').style.display = (mode === 2) ? 'flex' : 'none';
 
-      // Auto-open respective default panel when switching modes
       if (mode === 1) {
         document.getElementById('guide-panel').style.display = 'block';
         document.getElementById('word-panel').style.display = 'none';
