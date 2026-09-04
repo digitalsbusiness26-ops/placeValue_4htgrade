@@ -673,6 +673,18 @@
     let modeScores = { 1: 0, 2: 0 };
     let blockCounts = { millions: 0, hundredThousands: 0, tenThousands: 0, thousands: 0, hundreds: 0, tens: 0, ones: 0 };
 
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function shuffleAllQuestions() {
+      mode1Levels.forEach(lvl => shuffleArray(lvl.questions));
+      mode2Levels.forEach(lvl => shuffleArray(lvl.questions));
+    }
+
     function updateScoreDisplay() {
       const totalScore = modeScores[1] + modeScores[2];
       document.getElementById('score').innerText = totalScore;
@@ -817,13 +829,15 @@
           document.getElementById('input-word-answer').value = state.wordInput || '';
         }
       } else {
+        shuffleAllQuestions();
         loadQuestion(true);
       }
     }
 
     function resetGameProgress() {
-      if (confirm("Are you sure you want to reset all game progress, levels, and score?")) {
+      if (confirm("Are you sure you want to reset all game progress, levels, and score? Questions will be randomized!")) {
         localStorage.removeItem('placeValueGameData_vMillions');
+        shuffleAllQuestions();
         modeProgress = {
           1: { levelIdx: 0, questionIdx: 0 },
           2: { levelIdx: 0, questionIdx: 0 }
@@ -846,6 +860,7 @@
     }
 
     function restartMode() {
+      shuffleAllQuestions();
       modeProgress[currentMode] = { levelIdx: 0, questionIdx: 0 };
       updateScoreDisplay();
       
