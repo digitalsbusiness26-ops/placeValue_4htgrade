@@ -3,575 +3,515 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Place Value & Number Words Detective</title>
+  <title>Place Value Vault Detective</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
-    :root {
-      --primary: #1e3a8a;
-      --secondary: #d97706;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --accent: #16a34a;
-      --guide-bg: #f0f9ff;
-      --word-bg: #fefce8;
-    }
-
-    body {
+    * {
+      box-sizing: border-box;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
+    }
+    body {
+      background-color: #0f1219;
+      color: #e2e8f0;
       margin: 0;
       padding: 20px;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-
-    h1 {
-      color: var(--primary);
-      margin: 0 0 5px 0;
-      font-size: 2.2rem;
-    }
-
-    h2 {
-      color: var(--secondary);
-      margin: 0 0 10px 0;
-      font-size: 1.5rem;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 15px;
-      align-items: center;
       justify-content: center;
-      margin-top: 10px;
-      flex-wrap: wrap;
+      min-height: 100vh;
+    }
+    .game-container {
+      width: 100%;
+      max-width: 1100px;
+      background: #181f2c;
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid #2a3447;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #2a3447;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      color: #38bdf8;
+      font-size: 1.8rem;
     }
 
+    .header h2 {
+      margin: 0;
+      color: #ec30bd;
+      font-size: 1.2rem;
+    }
+    
     .score-board {
       font-size: 1.2rem;
       font-weight: bold;
-      color: var(--secondary);
-      background: #fef3c7;
+      background: #0f1219;
       padding: 8px 16px;
+      border: 1px solid #2a3447;
       border-radius: 20px;
-      border: 2px solid #f59e0b;
-      display: inline-block;
+      color: #4ade80;
     }
-
-    .btn-reset {
-      background: #f1f5f9;
-      border: 1px solid #cbd5e1;
-      color: #475569;
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-reset:hover {
-      background: #fee2e2;
-      border-color: #fca5a5;
-      color: #991b1b;
-    }
-
-    .game-container {
-      max-width: 900px;
-      width: 100%;
-      background: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      padding: 25px;
-      box-sizing: border-box;
-    }
-
     .mode-tabs {
       display: flex;
       gap: 10px;
       margin-bottom: 20px;
-      justify-content: center;
     }
-
     .tab-btn {
-      padding: 10px 20px;
-      font-size: 1.05rem;
+      flex: 1;
+      padding: 12px;
+      background: #0f1219;
+      border: 2px solid #2a3447;
+      color: #94a3b8;
       font-weight: bold;
       border-radius: 8px;
-      border: 2px solid var(--primary);
-      background: white;
-      color: var(--primary);
       cursor: pointer;
       transition: all 0.2s;
     }
-
     .tab-btn.active {
-      background: var(--primary);
-      color: white;
+      background: #38bdf8;
+      color: #0f1219;
+      border-color: #38bdf8;
     }
-
-    .guide-banner {
-      background: #e0f2fe;
-      border: 2px dashed #0284c7;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .banner-buttons {
+    .top-controls {
       display: flex;
       gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .btn-guide-toggle {
-      background: #0284c7;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      font-size: 0.95rem;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .btn-words-toggle {
-      background: #ca8a04;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      font-size: 0.95rem;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .guide-panel {
-      display: none;
-      background: var(--guide-bg);
-      border: 1px solid #bae6fd;
-      border-radius: 8px;
-      padding: 15px;
-      margin-top: 10px;
-      text-align: left;
-    }
-
-    .guide-panel h3 {
-      margin-top: 0;
-      color: var(--primary);
-    }
-
-    .guide-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .guide-item {
-      background: #ffffff;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #cbd5e1;
-      font-size: 0.9rem;
-    }
-
-    .word-panel {
-      display: none;
-      background: var(--word-bg);
-      border: 1px solid #fde047;
-      border-radius: 8px;
-      padding: 15px;
-      margin-top: 10px;
-      text-align: left;
-    }
-
-    .word-panel h3 {
-      margin-top: 0;
-      color: #854d0e;
-    }
-
-    .word-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .word-card {
-      background: #ffffff;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #fef08a;
-      font-size: 0.9rem;
-    }
-
-    .word-card strong {
-      color: #a16207;
-    }
-
-    .level-badge {
-      display: inline-block;
-      background: var(--primary);
-      color: white;
-      font-size: 0.85rem;
-      font-weight: bold;
-      padding: 4px 10px;
-      border-radius: 12px;
-      margin-bottom: 5px;
-      text-transform: uppercase;
-    }
-
-    .clue-card {
-      background: #eff6ff;
-      border-left: 6px solid var(--primary);
-      padding: 15px 20px;
-      border-radius: 6px;
       margin-bottom: 20px;
     }
-
-    .clue-card h2 {
-      margin: 0 0 8px 0;
-      color: var(--primary);
-      font-size: 1.2rem;
+    .btn-helper {
+      background: #2a3447;
+      color: #e2e8f0;
+      border: 1px solid #3b475d;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
     }
-
-    .clue-text {
-      font-size: 1.6rem;
+    .btn-helper:hover {
+      background: #3b475d;
+    }
+    .btn-reset {
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-left: auto;
+    }
+    .panel-box {
+      display: none;
+      background: #0f1219;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #2a3447;
+      line-height: 1.5;
+    }
+    .panel-box h3 {
+      margin-top: 0;
+      color: #38bdf8;
+    }
+    .guide-steps {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .guide-steps li {
+      margin-bottom: 6px;
+    }
+    .block-ref-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      background: #181f2c;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #2a3447;
+      margin: 12px 0;
+    }
+    .block-ref-item {
+      font-size: 0.95rem;
+    }
+    .block-ref-item strong {
+      color: #fbbf24;
+    }
+    .zero-rule-alert {
+      background: rgba(239, 68, 68, 0.15);
+      border-left: 4px solid #ef4444;
+      padding: 10px 14px;
+      border-radius: 4px;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+    .word-bank-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      background: #181f2c;
+      padding: 14px;
+      border-radius: 6px;
+      border: 1px solid #2a3447;
+      margin: 12px 0;
+    }
+    .word-bank-cat strong {
+      color: #38bdf8;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .word-bank-cat div {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      margin-bottom: 2px;
+    }
+    .level-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .level-badge {
+      background: #fbbf24;
+      color: #0f1219;
+      padding: 4px 12px;
+      border-radius: 12px;
       font-weight: bold;
-      color: #1e293b;
     }
-
+    .clue-box {
+      background: #0f1219;
+      padding: 20px;
+      border-radius: 8px;
+      font-size: 1.3rem;
+      text-align: center;
+      margin-bottom: 20px;
+      border: 1px solid #2a3447;
+      border-left: 5px solid #38bdf8;
+    }
+    
+    /* Place Value Grid */
     .pv-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 15px;
-      margin-bottom: 25px;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+      overflow-x: auto;
     }
-
     .pv-column {
-      border: 2px solid #cbd5e1;
+      background: #0f1219;
+      border: 1px solid #2a3447;
       border-radius: 8px;
-      background: #fafafa;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 10px;
+      min-width: 110px;
     }
-
     .pv-header {
       font-weight: bold;
-      font-size: 1.1rem;
-      color: var(--primary);
-      text-align: center;
-      margin-bottom: 4px;
+      font-size: 0.9rem;
+      color: #38bdf8;
     }
-
     .pv-sub {
-      font-size: 0.85rem;
+      font-size: 0.75rem;
       color: #64748b;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-
     .visual-block-area {
-      min-height: 80px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
+      height: 120px;
       width: 100%;
-      margin-bottom: 15px;
-      background: #ffffff;
-      border: 1px dashed #cbd5e1;
-      border-radius: 6px;
-      padding: 5px;
-      box-sizing: border-box;
-    }
-
-    .block-cube {
-      width: 32px;
-      height: 32px;
-      background: #3b82f6;
-      border: 1px solid #1d4ed8;
+      border: 1px dashed #2a3447;
+      background: #181f2c;
       border-radius: 4px;
-      box-shadow: 2px 2px 0px #1e40af;
+      margin-bottom: 10px;
+      display: flex;
+      flex-wrap: wrap-reverse;
+      align-content: flex-start;
+      gap: 2px;
+      padding: 4px;
+      overflow-y: auto;
     }
-
-    .block-flat {
-      width: 30px;
-      height: 30px;
-      background: #60a5fa;
-      border: 1px solid #2563eb;
-    }
-
-    .block-rod {
-      width: 8px;
-      height: 30px;
-      background: #93c5fd;
-      border: 1px solid #3b82f6;
-    }
-
-    .block-unit {
-      width: 8px;
-      height: 8px;
-      background: #bfdbfe;
-      border: 1px solid #60a5fa;
-    }
+    
+    /* Block Colors */
+    .block-millions { width: 100%; height: 8px; background: #ef4444; border-radius: 2px; }
+    .block-hundred-thousands { width: 45%; height: 10px; background: #f97316; border-radius: 2px; }
+    .block-ten-thousands { width: 45%; height: 8px; background: #eab308; border-radius: 2px; }
+    .block-thousands { width: 30%; height: 12px; background: #22c55e; border-radius: 2px; }
+    .block-hundreds { width: 28%; height: 28%; background: #3b82f6; border-radius: 2px; }
+    .block-tens { width: 18%; height: 20px; background: #a855f7; border-radius: 2px; }
+    .block-ones { width: 12px; height: 12px; background: #ec4899; border-radius: 2px; }
 
     .controls {
       display: flex;
-      gap: 8px;
-      margin-bottom: 15px;
+      gap: 5px;
+      margin-bottom: 10px;
     }
-
     .btn-counter {
-      background: #e2e8f0;
-      border: none;
-      font-size: 1.2rem;
+      background: #2a3447;
+      color: #fff;
+      border: 1px solid #3b475d;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
       font-weight: bold;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
       cursor: pointer;
-      color: var(--text);
-      transition: background 0.2s;
     }
-
-    .btn-counter:hover {
-      background: #cbd5e1;
-    }
-
+    .btn-counter:hover { background: #38bdf8; color: #0f1219; }
     .digit-input {
-      width: 60px;
-      height: 45px;
-      font-size: 1.5rem;
+      width: 50px;
+      height: 40px;
       text-align: center;
-      border: 2px solid #94a3b8;
-      border-radius: 6px;
+      font-size: 1.4rem;
       font-weight: bold;
+      background: #181f2c;
+      border: 2px solid #2a3447;
+      color: #fff;
+      border-radius: 6px;
     }
-
     .digit-input.input-missing {
-      border-color: #dc2626 !important;
-      background-color: #fef2f2 !important;
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.2);
     }
-
+    
+    /* Word Input Mode */
     .word-input-area {
-      display: none;
+      display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 25px;
+      gap: 10px;
+      margin-bottom: 20px;
     }
-
     .text-word-input {
       width: 100%;
-      max-width: 600px;
-      padding: 12px 16px;
-      font-size: 1.3rem;
-      border: 2px solid #94a3b8;
+      padding: 14px;
+      font-size: 1.1rem;
       border-radius: 8px;
-      text-align: center;
-      font-weight: 600;
+      border: 2px solid #2a3447;
+      background: #0f1219;
+      color: #fff;
     }
-
-    .text-word-input:focus {
-      border-color: var(--primary);
-      outline: none;
-      background-color: #f0f9ff;
-    }
-
     .word-hint {
-      font-size: 0.95rem;
-      color: #64748b;
+      font-size: 0.85rem;
+      color: #94a3b8;
     }
 
     .action-area {
       text-align: center;
       margin-top: 10px;
     }
-
     .btn-submit {
-      background-color: var(--accent);
-      color: white;
+      background: #22c55e;
+      color: #0f1219;
       border: none;
-      padding: 12px 30px;
+      padding: 14px 40px;
       font-size: 1.2rem;
       font-weight: bold;
-      border-radius: 8px;
+      border-radius: 30px;
       cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      transition: background-color 0.2s, transform 0.1s;
+      box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+      transition: transform 0.1s;
     }
-
-    .btn-submit:hover {
-      background-color: #15803d;
-    }
+    .btn-submit:active { transform: scale(0.98); }
 
     .feedback {
       margin-top: 15px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      min-height: 30px;
       text-align: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      min-height: 25px;
     }
-
-    .correct {
-      color: var(--accent);
-    }
-
-    .incorrect {
-      color: #dc2626;
-    }
-
+    .feedback.correct { color: #4ade80; }
+    .feedback.incorrect { color: #f87171; }
+    
     .zero-warning {
-      background: #fef2f2;
-      border: 1px solid #fca5a5;
-      color: #991b1b;
+      display: none;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #f87171;
       padding: 10px;
       border-radius: 6px;
-      margin-top: 15px;
-      display: none;
-      font-size: 0.95rem;
+      margin-top: 10px;
       text-align: center;
+      font-size: 0.9rem;
     }
 
     .victory-screen {
       display: none;
       text-align: center;
-      padding: 30px 20px;
-      background: #f0fdf4;
-      border: 3px solid #22c55e;
-      border-radius: 12px;
+      padding: 40px 20px;
     }
-
-    .victory-screen h2 {
-      color: #15803d;
-      font-size: 2rem;
-      margin-top: 0;
-    }
-
-    .victory-screen p {
-      font-size: 1.2rem;
-      color: #166534;
-    }
-
+    .victory-screen h2 { color: #4ade80; font-size: 2rem; }
     .btn-replay {
-      background: #16a34a;
-      color: white;
+      background: #38bdf8;
+      color: #0f1219;
       border: none;
-      padding: 12px 24px;
-      font-size: 1.1rem;
+      padding: 12px 30px;
       font-weight: bold;
-      border-radius: 8px;
+      border-radius: 20px;
       cursor: pointer;
       margin-top: 15px;
-    }
-
-    @media (max-width: 650px) {
-      .pv-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Vault Heist: Place Value Detective</h1>
-    <h2>Ms. Jean's Class</h2>
-    <div class="header-actions">
-      <div class="score-board">Vault Cash Earned: $<span id="score">0</span></div>
-      <button class="btn-reset" onclick="resetGameProgress()">Reset All Progress</button>
-    </div>
-  </header>
-
   <div class="game-container">
-
-    <div class="mode-tabs" id="mode-tabs">
-      <button class="tab-btn active" id="tab-mode1" onclick="switchMode(1)">🧱 Build & Write Digits</button>
-      <button class="tab-btn" id="tab-mode2" onclick="switchMode(2)">✍️ Type in Words</button>
+    <div class="header">
+      <h1>🕵️ Place Value Vault Detective</h1>
+      <p>|</p>
+      <h2>Ms. Jean's Class</h2>
+      <div class="score-board">Cash Earned: $<span id="score">0</span></div>
     </div>
-    
-    <div class="guide-banner" id="guide-banner">
-      <div class="banner-buttons">
-        <button class="btn-guide-toggle" onclick="toggleGuide()">🔍 Detective Field Guide</button>
-        <button class="btn-words-toggle" onclick="toggleWords()">🔤 Word Bank Helper</button>
-      </div>
 
-      <div class="guide-panel" id="guide-panel">
-        <h3>Detective Field Guide</h3>
-        <p><strong>Step 1: Read the Clue.</strong> Look at which place values are mentioned.</p>
-        <p><strong>Step 2: Build with Blocks (Optional).</strong> Use the <code>+</code> button under each column to place blocks.</p>
-        <p><strong>Step 3: Count and Write Digits.</strong> Type how many blocks are in each column into the box below it.</p>
-        
-        <div class="guide-grid">
-          <div class="guide-item">
-            <strong>Thousands (Cube)</strong><br>Value = 1,000<br><em>Example: 3 cubes = 3,000</em>
-          </div>
-          <div class="guide-item">
-            <strong>Hundreds (Flat)</strong><br>Value = 100<br><em>Example: 2 flats = 200</em>
-          </div>
-          <div class="guide-item">
-            <strong>Tens (Rod)</strong><br>Value = 10<br><em>Example: 5 rods = 50</em>
-          </div>
-          <div class="guide-item">
-            <strong>Ones (Unit)</strong><br>Value = 1<br><em>Example: 4 units = 4</em>
-          </div>
+    <div class="mode-tabs">
+      <button class="tab-btn active" id="tab-mode1" onclick="switchMode(1)">Mode 1: Build the Vault</button>
+      <button class="tab-btn" id="tab-mode2" onclick="switchMode(2)">Mode 2: Wordsmith</button>
+    </div>
+
+    <div class="top-controls">
+      <button class="btn-helper" onclick="toggleGuide()">📖 Detective's Field Guide</button>
+      <button class="btn-helper" onclick="toggleWords()">🔤 Word Bank Helper</button>
+      <button class="btn-reset" onclick="resetGameProgress()">↺ Reset Progress</button>
+    </div>
+
+    <!-- Default open for Mode 1 -->
+    <div class="panel-box" id="guide-panel" style="display: block;">
+      <h3>Detective Field Guide</h3>
+      <ol class="guide-steps">
+        <li><strong>Step 1: Read the Clue.</strong> Look at which place values are mentioned.</li>
+        <li><strong>Step 2: Build with Blocks (Optional).</strong> Use the <code>+</code> button under each column to place blocks.</li>
+        <li><strong>Step 3: Count and Write Digits.</strong> Type how many blocks are in each column into the box below it.</li>
+      </ol>
+
+      <div class="block-ref-list">
+        <div class="block-ref-item">
+          <strong>Thousands (Cube)</strong><br>
+          Value = 1,000<br>
+          <em>Example: 3 cubes = 3,000</em>
         </div>
-
-        <p style="margin-top: 12px; color: #b91c1c;">
-          <strong>🚨 The Zero Rule:</strong> If a zero is in the <strong>middle</strong> of two digits (like 305) or is the <strong>last digit</strong> (like 250), you MUST type a <code>0</code> in that box! Front leading zeros are optional.
-        </p>
-      </div>
-
-      <div class="word-panel" id="word-panel">
-        <h3>Number Word Bank</h3>
-        <p>Use these spellings when typing your answer in words:</p>
-        
-        <div class="word-grid">
-          <div class="word-card">
-            <strong>Ones (1-9)</strong><br>
-            1 = one<br>2 = two<br>3 = three<br>4 = four<br>5 = five<br>6 = six<br>7 = seven<br>8 = eight<br>9 = nine
-          </div>
-          <div class="word-card">
-            <strong>Tens (10-90)</strong><br>
-            10 = ten<br>20 = twenty<br>30 = thirty<br>40 = forty<br>50 = fifty<br>60 = sixty<br>70 = seventy<br>80 = eighty<br>90 = ninety
-          </div>
-          <div class="word-card">
-            <strong>Teens (11-19)</strong><br>
-            11 = eleven<br>12 = twelve<br>13 = thirteen<br>14 = fourteen<br>15 = fifteen<br>16 = sixteen<br>17 = seventeen<br>18 = eighteen<br>19 = nineteen
-          </div>
-          <div class="word-card">
-            <strong>Big Places</strong><br>
-            100 = hundred<br>
-            1,000 = thousand<br><br>
-            <em>Example:</em><br>
-            <strong>305</strong> = three hundred five
-          </div>
+        <div class="block-ref-item">
+          <strong>Hundreds (Flat)</strong><br>
+          Value = 100<br>
+          <em>Example: 2 flats = 200</em>
+        </div>
+        <div class="block-ref-item">
+          <strong>Tens (Rod)</strong><br>
+          Value = 10<br>
+          <em>Example: 5 rods = 50</em>
+        </div>
+        <div class="block-ref-item">
+          <strong>Ones (Unit)</strong><br>
+          Value = 1<br>
+          <em>Example: 4 units = 4</em>
         </div>
       </div>
 
+      <div class="zero-rule-alert">
+        🚨 <strong>The Zero Rule:</strong> If a zero is in the <strong>middle</strong> of two digits (like 305) or is the <strong>last digit</strong> (like 250), you MUST type a <code>0</code> in that box! Front leading zeros are optional.
+      </div>
+    </div>
+
+    <!-- Default open for Mode 2 -->
+    <div class="panel-box" id="word-panel" style="display: none;">
+      <h3>Number Word Bank</h3>
+      <p>Use these spellings when typing your answer in words:</p>
+      
+      <div class="word-bank-grid">
+        <div class="word-bank-cat">
+          <strong>Ones (1-9)</strong>
+          <div>1 = one</div>
+          <div>2 = two</div>
+          <div>3 = three</div>
+          <div>4 = four</div>
+          <div>5 = five</div>
+          <div>6 = six</div>
+          <div>7 = seven</div>
+          <div>8 = eight</div>
+          <div>9 = nine</div>
+        </div>
+
+        <div class="word-bank-cat">
+          <strong>Teens (11-19)</strong>
+          <div>11 = eleven</div>
+          <div>12 = twelve</div>
+          <div>13 = thirteen</div>
+          <div>14 = fourteen</div>
+          <div>15 = fifteen</div>
+          <div>16 = sixteen</div>
+          <div>17 = seventeen</div>
+          <div>18 = eighteen</div>
+          <div>19 = nineteen</div>
+        </div>
+
+        <div class="word-bank-cat">
+          <strong>Tens (10-90)</strong>
+          <div>10 = ten</div>
+          <div>20 = twenty</div>
+          <div>30 = thirty</div>
+          <div>40 = forty</div>
+          <div>50 = fifty</div>
+          <div>60 = sixty</div>
+          <div>70 = seventy</div>
+          <div>80 = eighty</div>
+          <div>90 = ninety</div>
+        </div>
+
+        <div class="word-bank-cat">
+          <strong>Big Places</strong>
+          <div>100 = hundred</div>
+          <div>1,000 = thousand</div>
+          <div>10,000 = ten thousand</div>
+          <div>100,000 = hundred thousand</div>
+          <div>1,000,000 = million</div>
+        </div>
+      </div>
+
+      <p style="margin-bottom:0;"><strong>Example:</strong> <code>3,500,305</code> = three million five hundred thousand three hundred five</p>
     </div>
 
     <div id="question-play-area">
-      <div class="clue-card">
-        <div class="level-badge" id="level-badge">Level 1: Beginner</div>
-        <h2>Vault Clue #<span id="clue-num">1</span></h2>
-        <div class="clue-text" id="clue-text">Loading clue...</div>
+      <div class="level-info">
+        <span class="level-badge" id="level-badge">Level 1</span>
+        <span>Vault <span id="clue-num">1 of 5</span></span>
       </div>
 
+      <div class="clue-box" id="clue-text">Loading clue...</div>
+
+      <!-- Mode 1 Grid -->
       <div class="pv-grid" id="pv-grid">
+        <div class="pv-column">
+          <div class="pv-header">Millions</div>
+          <div class="pv-sub">(1,000,000s)</div>
+          <div class="visual-block-area" id="blocks-millions"></div>
+          <div class="controls">
+            <button class="btn-counter" onclick="changeBlock('millions', -1)">-</button>
+            <button class="btn-counter" onclick="changeBlock('millions', 1)">+</button>
+          </div>
+          <input type="text" inputmode="numeric" id="input-millions" class="digit-input" maxlength="1" placeholder="0" oninput="handleDigitInput('millions');">
+        </div>
+
+        <div class="pv-column">
+          <div class="pv-header">Hundred Thousands</div>
+          <div class="pv-sub">(100,000s)</div>
+          <div class="visual-block-area" id="blocks-hundredThousands"></div>
+          <div class="controls">
+            <button class="btn-counter" onclick="changeBlock('hundredThousands', -1)">-</button>
+            <button class="btn-counter" onclick="changeBlock('hundredThousands', 1)">+</button>
+          </div>
+          <input type="text" inputmode="numeric" id="input-hundredThousands" class="digit-input" maxlength="1" placeholder="0" oninput="handleDigitInput('hundredThousands');">
+        </div>
+
+        <div class="pv-column">
+          <div class="pv-header">Ten Thousands</div>
+          <div class="pv-sub">(10,000s)</div>
+          <div class="visual-block-area" id="blocks-tenThousands"></div>
+          <div class="controls">
+            <button class="btn-counter" onclick="changeBlock('tenThousands', -1)">-</button>
+            <button class="btn-counter" onclick="changeBlock('tenThousands', 1)">+</button>
+          </div>
+          <input type="text" inputmode="numeric" id="input-tenThousands" class="digit-input" maxlength="1" placeholder="0" oninput="handleDigitInput('tenThousands');">
+        </div>
+
         <div class="pv-column">
           <div class="pv-header">Thousands</div>
           <div class="pv-sub">(1,000s)</div>
@@ -617,9 +557,10 @@
         </div>
       </div>
 
-      <div class="word-input-area" id="word-input-area">
+      <!-- Mode 2 Input -->
+      <div class="word-input-area" id="word-input-area" style="display: none;">
         <input type="text" id="input-word-answer" class="text-word-input" placeholder="Type the number in words here..." oninput="saveGameState()">
-        <div class="word-hint">💡 Example: Type <code>three hundred four</code> (Use Word Bank Helper if needed!)</div>
+        <div class="word-hint">💡 Example: Type <code>three hundred five</code> (Use Word Bank Helper if needed!)</div>
       </div>
 
       <div class="action-area">
@@ -642,68 +583,70 @@
   </div>
 
   <script>
+    const ALL_PLACES = ['millions', 'hundredThousands', 'tenThousands', 'thousands', 'hundreds', 'tens', 'ones'];
+
     const mode1Levels = [
       {
-        levelName: "Level 1: Novice Detective",
+        levelName: "Level 1: Thousands & Ten Thousands",
         questions: [
-          { text: "3 Hundreds, 4 Tens, and 2 Ones", target: { thousands: 0, hundreds: 3, tens: 4, ones: 2 } },
-          { text: "5 Hundreds and 6 Ones", target: { thousands: 0, hundreds: 5, tens: 0, ones: 6 } },
-          { text: "2 Hundreds, 8 Tens, and 0 Ones", target: { thousands: 0, hundreds: 2, tens: 8, ones: 0 } },
-          { text: "7 Hundreds, 1 Ten, and 9 Ones", target: { thousands: 0, hundreds: 7, tens: 1, ones: 9 } },
-          { text: "4 Hundreds, 3 Tens, and 0 Ones", target: { thousands: 0, hundreds: 4, tens: 3, ones: 0 } }
+          { text: "4 Ten Thousands, 3 Thousands, 2 Hundreds, and 5 Ones", target: { millions: 0, hundredThousands: 0, tenThousands: 4, thousands: 3, hundreds: 2, tens: 0, ones: 5 } },
+          { text: "8 Ten Thousands, 0 Thousands, 6 Hundreds, 4 Tens, and 0 Ones", target: { millions: 0, hundredThousands: 0, tenThousands: 8, thousands: 0, hundreds: 6, tens: 4, ones: 0 } },
+          { text: "20,000 + 5,000 + 400 + 30 + 9", target: { millions: 0, hundredThousands: 0, tenThousands: 2, thousands: 5, hundreds: 4, tens: 3, ones: 9 } },
+          { text: "6 Ten Thousands, 9 Thousands, and 7 Tens", target: { millions: 0, hundredThousands: 0, tenThousands: 6, thousands: 9, hundreds: 0, tens: 7, ones: 0 } },
+          { text: "50,000 + 800 + 2", target: { millions: 0, hundredThousands: 0, tenThousands: 5, thousands: 0, hundreds: 8, tens: 0, ones: 2 } }
         ]
       },
       {
-        levelName: "Level 2: Senior Detective",
+        levelName: "Level 2: Hundred Thousands",
         questions: [
-          { text: "1,000 + 600 + 50 + 4", target: { thousands: 1, hundreds: 6, tens: 5, ones: 4 } },
-          { text: "3 Thousands, 0 Hundreds, 4 Tens, and 8 Ones", target: { thousands: 3, hundreds: 0, tens: 4, ones: 8 } },
-          { text: "4,000 + 200 + 0 + 9", target: { thousands: 4, hundreds: 2, tens: 0, ones: 9 } },
-          { text: "2 Thousands, 5 Hundreds, 8 Tens, and 3 Ones", target: { thousands: 2, hundreds: 5, tens: 8, ones: 3 } },
-          { text: "6,000 + 0 + 70 + 0", target: { thousands: 6, hundreds: 0, tens: 7, ones: 0 } }
+          { text: "3 Hundred Thousands, 5 Ten Thousands, 2 Thousands, 8 Hundreds, 1 Ten, and 4 Ones", target: { millions: 0, hundredThousands: 3, tenThousands: 5, thousands: 2, hundreds: 8, tens: 1, ones: 4 } },
+          { text: "6 Hundred Thousands, 0 Ten Thousands, 4 Thousands, 0 Hundreds, and 9 Ones", target: { millions: 0, hundredThousands: 6, tenThousands: 0, thousands: 4, hundreds: 0, tens: 0, ones: 9 } },
+          { text: "400,000 + 70,000 + 3,000 + 500 + 60", target: { millions: 0, hundredThousands: 4, tenThousands: 7, thousands: 3, hundreds: 5, tens: 6, ones: 0 } },
+          { text: "8 Hundred Thousands, 2 Ten Thousands, and 5 Tens", target: { millions: 0, hundredThousands: 8, tenThousands: 2, thousands: 0, hundreds: 0, tens: 5, ones: 0 } },
+          { text: "100,000 + 9,000 + 400 + 8", target: { millions: 0, hundredThousands: 1, tenThousands: 0, thousands: 9, hundreds: 4, tens: 0, ones: 8 } }
         ]
       },
       {
-        levelName: "Level 3: Master Detective",
+        levelName: "Level 3: Millions Master",
         questions: [
-          { text: "The digit in the thousands place is 3. The value of the tens place is 70. There are 2 hundreds and 1 one.", target: { thousands: 3, hundreds: 2, tens: 7, ones: 1 } },
-          { text: "5 Thousands, 4 Hundreds, and 3 Ones", target: { thousands: 5, hundreds: 4, tens: 0, ones: 3 } },
-          { text: "Two Thousand, Six Hundred, and Four Ones", target: { thousands: 2, hundreds: 6, tens: 0, ones: 4 } },
-          { text: "The thousands digit is 8. The tens digit is 5. Hundreds and ones are both 0.", target: { thousands: 8, hundreds: 0, tens: 5, ones: 0 } },
-          { text: "7 Thousands, 9 Hundreds, 9 Tens, and 9 Ones", target: { thousands: 7, hundreds: 9, tens: 9, ones: 9 } }
+          { text: "2 Millions, 4 Hundred Thousands, 6 Ten Thousands, 1 Thousand, 3 Hundreds, 5 Tens, and 2 Ones", target: { millions: 2, hundredThousands: 4, tenThousands: 6, thousands: 1, hundreds: 3, tens: 5, ones: 2 } },
+          { text: "5 Millions, 0 Hundred Thousands, 3 Ten Thousands, 0 Thousands, 7 Hundreds, and 4 Ones", target: { millions: 5, hundredThousands: 0, tenThousands: 3, thousands: 0, hundreds: 7, tens: 0, ones: 4 } },
+          { text: "7,000,000 + 200,000 + 40,000 + 8,000 + 900 + 10 + 6", target: { millions: 7, hundredThousands: 2, tenThousands: 4, thousands: 8, hundreds: 9, tens: 1, ones: 6 } },
+          { text: "4 Millions, 8 Hundred Thousands, and 5 Tens", target: { millions: 4, hundredThousands: 8, tenThousands: 0, thousands: 0, hundreds: 0, tens: 5, ones: 0 } },
+          { text: "The digit in the millions place is 9, ten thousands digit is 4, hundreds digit is 2. All other places are 0.", target: { millions: 9, hundredThousands: 0, tenThousands: 4, thousands: 0, hundreds: 2, tens: 0, ones: 0 } }
         ]
       }
     ];
 
     const mode2Levels = [
       {
-        levelName: "Level 1: Word Starter",
+        levelName: "Level 1: Words to 100,000",
         questions: [
-          { clue: "Write 145 in words:", acceptableAnswers: ["one hundred forty five", "one hundred forty-five", "one hundred and forty five"] },
-          { clue: "Write 250 in words:", acceptableAnswers: ["two hundred fifty", "two hundred and fifty"] },
-          { clue: "Write 308 in words:", acceptableAnswers: ["three hundred eight", "three hundred and eight"] },
-          { clue: "Write 472 in words:", acceptableAnswers: ["four hundred seventy two", "four hundred seventy-two", "four hundred and seventy two"] },
-          { clue: "Write 600 in words:", acceptableAnswers: ["six hundred"] }
+          { clue: "Write 25,410 in words:", acceptableAnswers: ["twenty five thousand four hundred ten", "twenty-five thousand four hundred ten", "twenty five thousand four hundred and ten"] },
+          { clue: "Write 60,305 in words:", acceptableAnswers: ["sixty thousand three hundred five", "sixty thousand three hundred and five"] },
+          { clue: "Write 14,080 in words:", acceptableAnswers: ["fourteen thousand eighty", "fourteen thousand and eighty"] },
+          { clue: "Write 88,800 in words:", acceptableAnswers: ["eighty eight thousand eight hundred", "eighty-eight thousand eight hundred"] },
+          { clue: "Write 45,612 in words:", acceptableAnswers: ["forty five thousand six hundred twelve", "forty-five thousand six hundred twelve", "forty five thousand six hundred and twelve"] }
         ]
       },
       {
-        levelName: "Level 2: Word Expert",
+        levelName: "Level 2: Words to 999,999",
         questions: [
-          { clue: "Write 1,204 in words:", acceptableAnswers: ["one thousand two hundred four", "one thousand two hundred and four"] },
-          { clue: "Write 412 in words:", acceptableAnswers: ["four hundred twelve", "four hundred and twelve"] },
-          { clue: "Write 3,570 in words:", acceptableAnswers: ["three thousand five hundred seventy", "three thousand five hundred and seventy"] },
-          { clue: "Write 2,085 in words:", acceptableAnswers: ["two thousand eighty five", "two thousand eighty-five", "two thousand and eighty five"] },
-          { clue: "Write 4,300 in words:", acceptableAnswers: ["four thousand three hundred"] }
+          { clue: "Write 350,200 in words:", acceptableAnswers: ["three hundred fifty thousand two hundred", "three hundred and fifty thousand two hundred"] },
+          { clue: "Write 104,050 in words:", acceptableAnswers: ["one hundred four thousand fifty", "one hundred and four thousand fifty", "one hundred four thousand and fifty"] },
+          { clue: "Write 725,009 in words:", acceptableAnswers: ["seven hundred twenty five thousand nine", "seven hundred twenty-five thousand nine", "seven hundred twenty five thousand and nine"] },
+          { clue: "Write 600,040 in words:", acceptableAnswers: ["six hundred thousand forty", "six hundred thousand and forty"] },
+          { clue: "Write 999,999 in words:", acceptableAnswers: ["nine hundred ninety nine thousand nine hundred ninety nine", "nine hundred ninety-nine thousand nine hundred ninety-nine"] }
         ]
       },
       {
-        levelName: "Level 3: Master Wordsmith",
+        levelName: "Level 3: Millions Wordsmith",
         questions: [
-          { clue: "Write 5,009 in words:", acceptableAnswers: ["five thousand nine", "five thousand and nine"] },
-          { clue: "Write 2,415 in words:", acceptableAnswers: ["two thousand four hundred fifteen", "two thousand four hundred and fifteen"] },
-          { clue: "Write 6,800 in words:", acceptableAnswers: ["six thousand eight hundred"] },
-          { clue: "Write 7,040 in words:", acceptableAnswers: ["seven thousand forty", "seven thousand and forty"] },
-          { clue: "Write 9,999 in words:", acceptableAnswers: ["nine thousand nine hundred ninety nine", "nine thousand nine hundred ninety-nine", "nine thousand nine hundred and ninety nine"] }
+          { clue: "Write 2,000,000 in words:", acceptableAnswers: ["two million"] },
+          { clue: "Write 1,400,050 in words:", acceptableAnswers: ["one million four hundred thousand fifty", "one million four hundred thousand and fifty"] },
+          { clue: "Write 5,030,208 in words:", acceptableAnswers: ["five million thirty thousand two hundred eight", "five million thirty thousand two hundred and eight"] },
+          { clue: "Write 3,250,000 in words:", acceptableAnswers: ["three million two hundred fifty thousand", "three million two hundred and fifty thousand"] },
+          { clue: "Write 7,005,010 in words:", acceptableAnswers: ["seven million five thousand ten", "seven million five thousand and ten"] }
         ]
       }
     ];
@@ -714,7 +657,7 @@
       2: { levelIdx: 0, questionIdx: 0 }
     };
     let modeScores = { 1: 0, 2: 0 };
-    let blockCounts = { thousands: 0, hundreds: 0, tens: 0, ones: 0 };
+    let blockCounts = { millions: 0, hundredThousands: 0, tenThousands: 0, thousands: 0, hundreds: 0, tens: 0, ones: 0 };
 
     function updateScoreDisplay() {
       const totalScore = modeScores[1] + modeScores[2];
@@ -754,19 +697,26 @@
       document.getElementById('pv-grid').style.display = (mode === 1) ? 'grid' : 'none';
       document.getElementById('word-input-area').style.display = (mode === 2) ? 'flex' : 'none';
 
+      // Auto-open respective default panel when switching modes
+      if (mode === 1) {
+        document.getElementById('guide-panel').style.display = 'block';
+        document.getElementById('word-panel').style.display = 'none';
+      } else {
+        document.getElementById('guide-panel').style.display = 'none';
+        document.getElementById('word-panel').style.display = 'block';
+      }
+
       loadQuestion(false);
       saveGameState();
     }
 
     function toggleGuide() {
-      const panel = document.getElementById('guide-panel');
-      document.getElementById('word-panel').style.display = 'none';
-      panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+      const guidePanel = document.getElementById('guide-panel');
+      guidePanel.style.display = (guidePanel.style.display === 'block') ? 'none' : 'block';
     }
 
     function toggleWords() {
       const wordPanel = document.getElementById('word-panel');
-      document.getElementById('guide-panel').style.display = 'none';
       wordPanel.style.display = (wordPanel.style.display === 'block') ? 'none' : 'block';
     }
 
@@ -797,36 +747,30 @@
     }
 
     function saveGameState() {
+      const inputsObj = {};
+      ALL_PLACES.forEach(p => {
+        inputsObj[p] = document.getElementById(`input-${p}`).value;
+      });
+
       const state = {
         currentMode: currentMode,
         modeProgress: modeProgress,
         modeScores: modeScores,
         blockCounts: blockCounts,
         wordInput: document.getElementById('input-word-answer').value,
-        inputsMode1: {
-          thousands: document.getElementById('input-thousands').value,
-          hundreds: document.getElementById('input-hundreds').value,
-          tens: document.getElementById('input-tens').value,
-          ones: document.getElementById('input-ones').value
-        }
+        inputsMode1: inputsObj
       };
-      localStorage.setItem('placeValueGameData_v15', JSON.stringify(state));
+      localStorage.setItem('placeValueGameData_vMillions', JSON.stringify(state));
     }
 
     function loadGameState() {
-      const savedData = localStorage.getItem('placeValueGameData_v15');
+      const savedData = localStorage.getItem('placeValueGameData_vMillions');
       if (savedData) {
         const state = JSON.parse(savedData);
         currentMode = state.currentMode || currentMode;
-        if (state.modeProgress) {
-          modeProgress = state.modeProgress;
-        }
-        if (state.modeScores) {
-          modeScores = state.modeScores;
-        } else if (state.score !== undefined) {
-          modeScores[currentMode] = state.score;
-        }
-        blockCounts = state.blockCounts || { thousands: 0, hundreds: 0, tens: 0, ones: 0 };
+        if (state.modeProgress) modeProgress = state.modeProgress;
+        if (state.modeScores) modeScores = state.modeScores;
+        blockCounts = state.blockCounts || { millions: 0, hundredThousands: 0, tenThousands: 0, thousands: 0, hundreds: 0, tens: 0, ones: 0 };
         
         updateScoreDisplay();
         
@@ -835,10 +779,18 @@
         document.getElementById('pv-grid').style.display = (currentMode === 1) ? 'grid' : 'none';
         document.getElementById('word-input-area').style.display = (currentMode === 2) ? 'flex' : 'none';
 
+        if (currentMode === 1) {
+          document.getElementById('guide-panel').style.display = 'block';
+          document.getElementById('word-panel').style.display = 'none';
+        } else {
+          document.getElementById('guide-panel').style.display = 'none';
+          document.getElementById('word-panel').style.display = 'block';
+        }
+
         loadQuestion(false);
 
         if (state.inputsMode1 && currentMode === 1) {
-          ['thousands', 'hundreds', 'tens', 'ones'].forEach(p => {
+          ALL_PLACES.forEach(p => {
             const raw = state.inputsMode1[p] || '';
             const cleaned = raw.replace(/[^0-9]/g, '').slice(-1);
             document.getElementById(`input-${p}`).value = cleaned;
@@ -858,7 +810,7 @@
 
     function resetGameProgress() {
       if (confirm("Are you sure you want to reset all game progress, levels, and score?")) {
-        localStorage.removeItem('placeValueGameData_v15');
+        localStorage.removeItem('placeValueGameData_vMillions');
         modeProgress = {
           1: { levelIdx: 0, questionIdx: 0 },
           2: { levelIdx: 0, questionIdx: 0 }
@@ -867,6 +819,15 @@
         updateScoreDisplay();
         document.getElementById('question-play-area').style.display = 'block';
         document.getElementById('victory-screen').style.display = 'none';
+        
+        if (currentMode === 1) {
+          document.getElementById('guide-panel').style.display = 'block';
+          document.getElementById('word-panel').style.display = 'none';
+        } else {
+          document.getElementById('guide-panel').style.display = 'none';
+          document.getElementById('word-panel').style.display = 'block';
+        }
+
         loadQuestion(true);
       }
     }
@@ -887,9 +848,7 @@
       document.getElementById('feedback').className = 'feedback';
       document.getElementById('zero-warning').style.display = 'none';
 
-      ['thousands', 'hundreds', 'tens', 'ones'].forEach(place => {
-        clearInputStyles(place);
-      });
+      ALL_PLACES.forEach(place => clearInputStyles(place));
 
       const levelsArr = (currentMode === 1) ? mode1Levels : mode2Levels;
       const currentLevelIdx = modeProgress[currentMode].levelIdx;
@@ -916,8 +875,8 @@
         document.getElementById('clue-text').innerText = q.text;
         
         if (resetInputs) {
-          blockCounts = { thousands: 0, hundreds: 0, tens: 0, ones: 0 };
-          ['thousands', 'hundreds', 'tens', 'ones'].forEach(place => {
+          ALL_PLACES.forEach(place => {
+            blockCounts[place] = 0;
             document.getElementById(`input-${place}`).value = '';
             renderBlocks(place);
           });
@@ -950,10 +909,13 @@
 
       for (let i = 0; i < count; i++) {
         const div = document.createElement('div');
-        if (place === 'thousands') div.className = 'block-cube';
-        if (place === 'hundreds') div.className = 'block-flat';
-        if (place === 'tens') div.className = 'block-rod';
-        if (place === 'ones') div.className = 'block-unit';
+        if (place === 'millions') div.className = 'block-millions';
+        if (place === 'hundredThousands') div.className = 'block-hundred-thousands';
+        if (place === 'tenThousands') div.className = 'block-ten-thousands';
+        if (place === 'thousands') div.className = 'block-thousands';
+        if (place === 'hundreds') div.className = 'block-hundreds';
+        if (place === 'tens') div.className = 'block-tens';
+        if (place === 'ones') div.className = 'block-ones';
         container.appendChild(div);
       }
     }
@@ -986,13 +948,13 @@
         const activeLevel = mode1Levels[currentLevelIdx];
         const q = activeLevel.questions[currentQuestionIdx];
 
-        const places = ['thousands', 'hundreds', 'tens', 'ones'];
-        const targetValues = [q.target.thousands, q.target.hundreds, q.target.tens, q.target.ones];
-
+        const targetValues = ALL_PLACES.map(p => q.target[p]);
         let firstNonZeroIdx = targetValues.findIndex(val => val > 0);
+        if (firstNonZeroIdx === -1) firstNonZeroIdx = ALL_PLACES.length - 1;
+
         let missingZeroFound = false;
 
-        places.forEach((place, idx) => {
+        ALL_PLACES.forEach((place, idx) => {
           const val = document.getElementById(`input-${place}`).value;
           const isLeadingPlace = (idx < firstNonZeroIdx);
 
@@ -1014,17 +976,15 @@
 
         zeroWarn.style.display = 'none';
 
-        const userTh = parseInt(document.getElementById('input-thousands').value, 10) || 0;
-        const userHu = parseInt(document.getElementById('input-hundreds').value, 10) || 0;
-        const userTe = parseInt(document.getElementById('input-tens').value, 10) || 0;
-        const userOn = parseInt(document.getElementById('input-ones').value, 10) || 0;
+        let allMatched = true;
+        ALL_PLACES.forEach(p => {
+          const userVal = parseInt(document.getElementById(`input-${p}`).value, 10) || 0;
+          if (userVal !== q.target[p]) {
+            allMatched = false;
+          }
+        });
 
-        if (
-          userTh === q.target.thousands &&
-          userHu === q.target.hundreds &&
-          userTe === q.target.tens &&
-          userOn === q.target.ones
-        ) {
+        if (allMatched) {
           feedbackEl.innerText = " Vault Unlocked! Digits match perfectly!";
           feedbackEl.className = "feedback correct";
           modeScores[currentMode] += 100;
